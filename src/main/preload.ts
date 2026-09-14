@@ -18,6 +18,9 @@ const api = {
     crear: (c: any) => ipcRenderer.invoke("clientes:crear", c),
     actualizar: (id: number, c: any) => ipcRenderer.invoke("clientes:actualizar", id, c),
     historialCompras: (id: number) => ipcRenderer.invoke("clientes:historialCompras", id),
+    paraSeguimiento: (dias: number) => ipcRenderer.invoke("clientes:paraSeguimiento", dias),
+    porMarcaComprada: (marca: string, dias: number) => ipcRenderer.invoke("clientes:porMarcaComprada", marca, dias),
+    proximosCumpleanos: (dias: number) => ipcRenderer.invoke("clientes:proximosCumpleanos", dias),
   },
   ventas: {
     crear: (input: any) => ipcRenderer.invoke("ventas:crear", input),
@@ -44,6 +47,26 @@ const api = {
     cambiarEstado: (id: number, estado: string) => ipcRenderer.invoke("grabados:cambiarEstado", id, estado),
     listasParaEntrega: () => ipcRenderer.invoke("grabados:listasParaEntrega"),
     historialCliente: (id: number) => ipcRenderer.invoke("grabados:historialCliente", id),
+  },
+  cotizaciones: {
+    listar: () => ipcRenderer.invoke("cotizaciones:listar"),
+    obtener: (id: number) => ipcRenderer.invoke("cotizaciones:obtener", id),
+    crear: (input: any) => ipcRenderer.invoke("cotizaciones:crear", input),
+    cambiarEstado: (id: number, estado: string) => ipcRenderer.invoke("cotizaciones:cambiarEstado", id, estado),
+    generarPDF: (id: number) => ipcRenderer.invoke("cotizaciones:generarPDF", id),
+  },
+  garantias: {
+    listar: (filtros?: any) => ipcRenderer.invoke("garantias:listar", filtros),
+    crear: (input: any) => ipcRenderer.invoke("garantias:crear", input),
+    cambiarEstado: (id: number, estado: string) => ipcRenderer.invoke("garantias:cambiarEstado", id, estado),
+  },
+  caja: {
+    actual: () => ipcRenderer.invoke("caja:actual"),
+    montoEsperado: () => ipcRenderer.invoke("caja:montoEsperado"),
+    abrir: (monto: number, usuario_id: number | null) => ipcRenderer.invoke("caja:abrir", monto, usuario_id),
+    cerrar: (montoReal: number, usuario_id: number | null, notas: string | null) =>
+      ipcRenderer.invoke("caja:cerrar", montoReal, usuario_id, notas),
+    historial: () => ipcRenderer.invoke("caja:historial"),
   },
   sistema: {
     backup: () => ipcRenderer.invoke("sistema:backup"),

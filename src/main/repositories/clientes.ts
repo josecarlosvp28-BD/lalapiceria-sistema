@@ -44,6 +44,58 @@ export function actualizarCliente(id: number, c: Partial<NuevoCliente>): Cliente
   return obtenerCliente(id)!;
 }
 
+/**
+ * Clientes sin compras en los últimos `dias`, para seguimiento post-venta.
+ */
+export function clientesParaSeguimiento(dias: number) {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT c.*, MAX(v.fecha) as ultima_compra
+       FROM clientes c
+       JOIN ventas v ON v.cliente_id = c.id AND v.estado = 'completada'
+       GROUP BY c.id
+       HAVING MAX(v.fecha) < datetime('now', '-' || ? || ' days')
+       ORDER BY ultima_compra`
+    )
+    .all(dias);
+}
+
+/**
+ * Clientes que compraron una marca específica en los últimos `dias`, para campañas segmentadas.
+ */
+export function clientesPorMarcaComprada(marca: string, dias: number) {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT DISTINCT c.*
+       FROM clientes c
+       JOIN ventas v ON v.cliente_id = c.id AND v.estado = 'completada'
+       JOIN ventas_detalle vd ON vd.venta_id = v.id
+       JOIN productos p ON p.id = vd.producto_id
+       WHERE p.marca = ? AND v.fecha >= datetime('now', '-' || ? || ' days')
+       ORDER BY c.nombre`
+    )
+    .all(marca, dias);
+}
+
+/**
+ * Cumpleaños dentro de los próximos `dias` días, para remarketing de regalos.
+ */
+export function proximosCumpleanos(dias: number) {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT * FROM clientes
+       WHERE fecha_nacimiento IS NOT NULL AND fecha_nacimiento != ''
+       AND (
+         strftime('%m-%d', fecha_nacimiento) BETWEEN strftime('%m-%d', 'now') AND strftime('%m-%d', 'now', '+' || ? || ' days')
+       )
+       ORDER BY strftime('%m-%d', fecha_nacimiento)`
+    )
+    .all(dias);
+}
+
 export function historialComprasCliente(cliente_id: number) {
   const db = getDb();
   return db

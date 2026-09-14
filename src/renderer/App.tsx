@@ -4,12 +4,18 @@ import POS from "./pages/POS";
 import Clientes from "./pages/Clientes";
 import Grabados from "./pages/Grabados";
 import Reportes from "./pages/Reportes";
+import Cotizaciones from "./pages/Cotizaciones";
+import Garantias from "./pages/Garantias";
+import Caja from "./pages/Caja";
 
 const nav = [
   { to: "/pos", label: "Punto de Venta" },
   { to: "/inventario", label: "Inventario" },
   { to: "/clientes", label: "Clientes" },
   { to: "/grabados", label: "Grabados" },
+  { to: "/cotizaciones", label: "Cotizaciones" },
+  { to: "/garantias", label: "Garantías" },
+  { to: "/caja", label: "Caja diaria" },
   { to: "/reportes", label: "Reportes" },
 ];
 
@@ -44,6 +50,9 @@ export default function App() {
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/grabados" element={<Grabados />} />
+          <Route path="/cotizaciones" element={<Cotizaciones />} />
+          <Route path="/garantias" element={<Garantias />} />
+          <Route path="/caja" element={<Caja />} />
           <Route path="/reportes" element={<Reportes />} />
         </Routes>
       </main>

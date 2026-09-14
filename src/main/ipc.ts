@@ -4,6 +4,10 @@ import * as inventario from "./repositories/inventario";
 import * as clientes from "./repositories/clientes";
 import * as ventas from "./repositories/ventas";
 import * as grabados from "./repositories/grabados";
+import * as cotizaciones from "./repositories/cotizaciones";
+import * as garantias from "./repositories/garantias";
+import * as caja from "./repositories/caja";
+import { generarCotizacionPDF } from "./pdf";
 import { backupDatabase } from "../db";
 
 function handle(channel: string, fn: (...args: any[]) => any) {
@@ -34,6 +38,9 @@ export function registerIpcHandlers() {
   handle("clientes:crear", (c) => clientes.crearCliente(c));
   handle("clientes:actualizar", (id, c) => clientes.actualizarCliente(id, c));
   handle("clientes:historialCompras", (id) => clientes.historialComprasCliente(id));
+  handle("clientes:paraSeguimiento", (dias) => clientes.clientesParaSeguimiento(dias));
+  handle("clientes:porMarcaComprada", (marca, dias) => clientes.clientesPorMarcaComprada(marca, dias));
+  handle("clientes:proximosCumpleanos", (dias) => clientes.proximosCumpleanos(dias));
 
   // Ventas
   handle("ventas:crear", (input) => ventas.crearVenta(input));
@@ -60,6 +67,25 @@ export function registerIpcHandlers() {
   handle("grabados:cambiarEstado", (id, estado) => grabados.cambiarEstadoOrdenGrabado(id, estado));
   handle("grabados:listasParaEntrega", () => grabados.ordenesListasParaEntrega());
   handle("grabados:historialCliente", (id) => grabados.historialGrabadosCliente(id));
+
+  // Cotizaciones corporativas
+  handle("cotizaciones:listar", () => cotizaciones.listarCotizaciones());
+  handle("cotizaciones:obtener", (id) => cotizaciones.obtenerCotizacion(id));
+  handle("cotizaciones:crear", (input) => cotizaciones.crearCotizacion(input));
+  handle("cotizaciones:cambiarEstado", (id, estado) => cotizaciones.cambiarEstadoCotizacion(id, estado));
+  handle("cotizaciones:generarPDF", (id) => generarCotizacionPDF(id));
+
+  // Garantías y reparaciones
+  handle("garantias:listar", (filtros) => garantias.listarGarantias(filtros));
+  handle("garantias:crear", (input) => garantias.crearGarantia(input));
+  handle("garantias:cambiarEstado", (id, estado) => garantias.cambiarEstadoGarantia(id, estado));
+
+  // Caja diaria
+  handle("caja:actual", () => caja.cajaAbierta());
+  handle("caja:montoEsperado", () => caja.montoEsperadoActual());
+  handle("caja:abrir", (monto, usuario_id) => caja.abrirCaja(monto, usuario_id));
+  handle("caja:cerrar", (montoReal, usuario_id, notas) => caja.cerrarCaja(montoReal, usuario_id, notas));
+  handle("caja:historial", () => caja.historialCaja());
 
   // Sistema
   handle("sistema:backup", () => backupDatabase());

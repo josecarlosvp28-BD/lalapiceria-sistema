@@ -22,6 +22,8 @@ export default function Clientes() {
   const [form, setForm] = useState<NuevoCliente>(CLIENTE_VACIO);
   const [seleccionado, setSeleccionado] = useState<Cliente | null>(null);
   const [historial, setHistorial] = useState<any[]>([]);
+  const [cumpleanos, setCumpleanos] = useState<Cliente[]>([]);
+  const [seguimiento, setSeguimiento] = useState<any[]>([]);
 
   async function cargar() {
     const res = await window.api.clientes.listar(busqueda);
@@ -31,6 +33,11 @@ export default function Clientes() {
   useEffect(() => {
     cargar();
   }, [busqueda]);
+
+  useEffect(() => {
+    window.api.clientes.proximosCumpleanos(30).then((r) => r.ok && setCumpleanos(r.data));
+    window.api.clientes.paraSeguimiento(90).then((r) => r.ok && setSeguimiento(r.data));
+  }, []);
 
   async function guardar() {
     if (!form.nombre.trim()) return;
@@ -125,6 +132,39 @@ export default function Clientes() {
         </div>
       </div>
 
+      <div className="space-y-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h2 className="font-semibold text-sm mb-2">🎂 Cumpleaños próximos (30 días)</h2>
+        {cumpleanos.length === 0 ? (
+          <p className="text-xs text-gray-400">Sin cumpleaños próximos.</p>
+        ) : (
+          <ul className="text-sm space-y-1">
+            {cumpleanos.map((c) => (
+              <li key={c.id} className="flex justify-between">
+                <span>{c.nombre}</span>
+                <span className="text-gray-400 text-xs">{c.fecha_nacimiento?.slice(5, 10)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <h2 className="font-semibold text-sm mb-2">📞 Seguimiento post-venta (90+ días sin comprar)</h2>
+        {seguimiento.length === 0 ? (
+          <p className="text-xs text-gray-400">Todos tus clientes han comprado recientemente.</p>
+        ) : (
+          <ul className="text-sm space-y-1">
+            {seguimiento.slice(0, 8).map((c: any) => (
+              <li key={c.id} className="flex justify-between">
+                <span>{c.nombre}</span>
+                <span className="text-gray-400 text-xs">última: {c.ultima_compra?.slice(0, 10)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-lg p-4 h-fit">
         {!seleccionado ? (
           <p className="text-gray-400 text-sm">Selecciona un cliente para ver su historial de compras.</p>
@@ -146,6 +186,7 @@ export default function Clientes() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
