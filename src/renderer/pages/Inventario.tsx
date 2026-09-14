@@ -26,6 +26,7 @@ export default function Inventario() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<NuevoProducto>(PRODUCTO_VACIO);
   const [error, setError] = useState<string | null>(null);
+  const [ajuste, setAjuste] = useState<{ producto: Producto; cantidad: string; motivo: string } | null>(null);
 
   async function cargar() {
     const res = await window.api.productos.listar({ busqueda });
@@ -57,26 +58,26 @@ export default function Inventario() {
     cargar();
   }
 
-  async function ajustarStock(producto: Producto) {
-    const cantidadStr = window.prompt(
-      `Ajuste de stock para ${producto.marca} ${producto.modelo}\nStock actual: ${producto.stock_actual}\n\nIngrese cantidad a AGREGAR (use negativo para restar, ej: -2):`
-    );
-    if (!cantidadStr) return;
-    const cantidad = Number(cantidadStr);
-    if (Number.isNaN(cantidad) || cantidad === 0) return;
-    const motivo = window.prompt("Motivo del ajuste:") ?? "";
-
+async function confirmarAjuste() {
+    if (!ajuste) return;
+    const cantidad = Number(ajuste.cantidad);
+    if (Number.isNaN(cantidad) || cantidad === 0) {
+      setError("Ingresa una cantidad válida (usa negativo para restar)");
+      return;
+    }
     const res = await window.api.inventario.registrarMovimiento({
-      producto_id: producto.id,
+      producto_id: ajuste.producto.id,
       tipo: cantidad > 0 ? "entrada" : "ajuste",
       cantidad: Math.abs(cantidad),
-      motivo,
+      motivo: ajuste.motivo || null,
       referencia_tipo: "ajuste_manual",
     });
     if (!res.ok) {
-      alert(res.error);
+      setError(res.error);
       return;
     }
+    setAjuste(null);
+    setError(null);
     cargar();
   }
 
@@ -215,7 +216,13 @@ export default function Inventario() {
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{p.estado}</span>
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <button onClick={() => ajustarStock(p)} className="text-brand-600 text-xs font-medium hover:underline">
+                    <button
+                      onClick={() => {
+                        setAjuste({ producto: p, cantidad: "", motivo: "" });
+                        setError(null);
+                      }}
+                      className="text-brand-600 text-xs font-medium hover:underline"
+                    >
                       Ajustar stock
                     </button>
                   </td>
@@ -232,6 +239,54 @@ export default function Inventario() {
           </tbody>
         </table>
       </div>
+
+      {ajuste && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-20">
+          <div className="bg-white rounded-lg p-5 w-96 shadow-xl">
+            <h3 className="font-semibold mb-1">Ajustar stock</h3>
+            <p className="text-sm text-gray-500 mb-3">
+              {ajuste.producto.marca} {ajuste.producto.modelo} — stock actual: {ajuste.producto.stock_actual}
+            </p>
+            {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+            <label className="text-xs text-gray-500 flex flex-col gap-1 mb-2">
+              Cantidad a agregar (usa negativo para restar, ej: -2)
+              <input
+                type="number"
+                autoFocus
+                className="input"
+                value={ajuste.cantidad}
+                onChange={(e) => setAjuste({ ...ajuste, cantidad: e.target.value })}
+              />
+            </label>
+            <label className="text-xs text-gray-500 flex flex-col gap-1 mb-4">
+              Motivo
+              <input
+                className="input"
+                value={ajuste.motivo}
+                onChange={(e) => setAjuste({ ...ajuste, motivo: e.target.value })}
+                placeholder="Ej: conteo físico, producto dañado, compra..."
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setAjuste(null);
+                  setError(null);
+                }}
+                className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarAjuste}
+                className="bg-brand-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-600"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import { app } from "electron";
+import { SCHEMA_SQL } from "./schema";
 
 let db: Database.Database | null = null;
 
@@ -17,11 +18,7 @@ export function getDb(): Database.Database {
   db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
-  const schemaPath = app.isPackaged
-    ? path.join(process.resourcesPath, "schema.sql")
-    : path.join(__dirname, "schema.sql");
-  const schema = fs.readFileSync(schemaPath, "utf-8");
-  db.exec(schema);
+  db.exec(SCHEMA_SQL);
   seedDefaultAdmin(db);
   return db;
 }

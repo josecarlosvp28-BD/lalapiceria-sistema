@@ -1,6 +1,10 @@
--- La Lapicería — esquema de base de datos local (SQLite)
--- Todos los montos se guardan en CENTAVOS (enteros) para evitar errores de punto flotante.
-
+// La Lapicería — esquema de base de datos local (SQLite)
+// Todos los montos se guardan en CENTAVOS (enteros) para evitar errores de punto flotante.
+//
+// Se define como string en TypeScript (en vez de un archivo .sql aparte) para que quede
+// incluido automáticamente en el bundle de Vite/Electron sin depender de rutas de archivos
+// en tiempo de ejecución, que se rompen fácilmente entre modo desarrollo y app empaquetada.
+export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -206,3 +210,4 @@ CREATE TABLE IF NOT EXISTS caja_diaria (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+`;
