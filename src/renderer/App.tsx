@@ -7,8 +7,10 @@ import Reportes from "./pages/Reportes";
 import Cotizaciones from "./pages/Cotizaciones";
 import Garantias from "./pages/Garantias";
 import Caja from "./pages/Caja";
+import Dashboard from "./pages/Dashboard";
 
 const nav = [
+  { to: "/dashboard", label: "Panel general" },
   { to: "/pos", label: "Punto de Venta" },
   { to: "/inventario", label: "Inventario" },
   { to: "/clientes", label: "Clientes" },
@@ -45,7 +47,8 @@ export default function App() {
       </aside>
       <main className="flex-1 overflow-y-auto">
         <Routes>
-          <Route path="/" element={<Navigate to="/pos" replace />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/pos" element={<POS />} />
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/clientes" element={<Clientes />} />

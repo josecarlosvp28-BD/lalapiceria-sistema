@@ -68,6 +68,14 @@ const api = {
       ipcRenderer.invoke("caja:cerrar", montoReal, usuario_id, notas),
     historial: () => ipcRenderer.invoke("caja:historial"),
   },
+  dashboard: {
+    resumenGeneral: (desde: string, hasta: string) => ipcRenderer.invoke("dashboard:resumenGeneral", desde, hasta),
+    rotacionInventario: (desde: string, hasta: string) =>
+      ipcRenderer.invoke("dashboard:rotacionInventario", desde, hasta),
+    clientesNuevosVsRecurrentes: (desde: string, hasta: string) =>
+      ipcRenderer.invoke("dashboard:clientesNuevosVsRecurrentes", desde, hasta),
+    ingresosPorCanal: (desde: string, hasta: string) => ipcRenderer.invoke("dashboard:ingresosPorCanal", desde, hasta),
+  },
   sistema: {
     backup: () => ipcRenderer.invoke("sistema:backup"),
     abrirWhatsApp: (telefono: string, mensaje: string) =>

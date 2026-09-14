@@ -7,6 +7,7 @@ import * as grabados from "./repositories/grabados";
 import * as cotizaciones from "./repositories/cotizaciones";
 import * as garantias from "./repositories/garantias";
 import * as caja from "./repositories/caja";
+import * as dashboard from "./repositories/dashboard";
 import { generarCotizacionPDF } from "./pdf";
 import { backupDatabase } from "../db";
 
@@ -86,6 +87,14 @@ export function registerIpcHandlers() {
   handle("caja:abrir", (monto, usuario_id) => caja.abrirCaja(monto, usuario_id));
   handle("caja:cerrar", (montoReal, usuario_id, notas) => caja.cerrarCaja(montoReal, usuario_id, notas));
   handle("caja:historial", () => caja.historialCaja());
+
+  // Dashboard / KPIs
+  handle("dashboard:resumenGeneral", (desde, hasta) => dashboard.kpiResumenGeneral(desde, hasta));
+  handle("dashboard:rotacionInventario", (desde, hasta) => dashboard.kpiRotacionInventario(desde, hasta));
+  handle("dashboard:clientesNuevosVsRecurrentes", (desde, hasta) =>
+    dashboard.kpiClientesNuevosVsRecurrentes(desde, hasta)
+  );
+  handle("dashboard:ingresosPorCanal", (desde, hasta) => dashboard.kpiIngresosPorCanal(desde, hasta));
 
   // Sistema
   handle("sistema:backup", () => backupDatabase());
