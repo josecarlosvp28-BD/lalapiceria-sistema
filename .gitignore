@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-electron/
+release/
+*.db
+*.db-journal
+backups/
+.DS_Store
+.env
