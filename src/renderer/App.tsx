@@ -2,11 +2,15 @@ import { NavLink, Route, Routes, Navigate } from "react-router-dom";
 import Inventario from "./pages/Inventario";
 import POS from "./pages/POS";
 import Clientes from "./pages/Clientes";
+import Grabados from "./pages/Grabados";
+import Reportes from "./pages/Reportes";
 
 const nav = [
   { to: "/pos", label: "Punto de Venta" },
   { to: "/inventario", label: "Inventario" },
   { to: "/clientes", label: "Clientes" },
+  { to: "/grabados", label: "Grabados" },
+  { to: "/reportes", label: "Reportes" },
 ];
 
 export default function App() {
@@ -39,6 +43,8 @@ export default function App() {
           <Route path="/pos" element={<POS />} />
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/clientes" element={<Clientes />} />
+          <Route path="/grabados" element={<Grabados />} />
+          <Route path="/reportes" element={<Reportes />} />
         </Routes>
       </main>
     </div>

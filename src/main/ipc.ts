@@ -1,8 +1,9 @@
-import { ipcMain } from "electron";
+import { ipcMain, shell } from "electron";
 import * as productos from "./repositories/productos";
 import * as inventario from "./repositories/inventario";
 import * as clientes from "./repositories/clientes";
 import * as ventas from "./repositories/ventas";
+import * as grabados from "./repositories/grabados";
 import { backupDatabase } from "../db";
 
 function handle(channel: string, fn: (...args: any[]) => any) {
@@ -43,7 +44,28 @@ export function registerIpcHandlers() {
   handle("ventas:reportePorPeriodo", (desde, hasta, agrupacion) =>
     ventas.reporteVentasPorPeriodo(desde, hasta, agrupacion)
   );
+  handle("ventas:reportePorMarca", (desde, hasta) => ventas.reporteVentasPorMarca(desde, hasta));
+  handle("ventas:reportePorCategoria", (desde, hasta) => ventas.reporteVentasPorCategoria(desde, hasta));
+  handle("ventas:reporteMargen", (desde, hasta, agrupacion) =>
+    ventas.reporteMargenPorPeriodo(desde, hasta, agrupacion)
+  );
+  handle("ventas:resumenComparativo", (desde, hasta, desdeAnterior, hastaAnterior) =>
+    ventas.resumenComparativo(desde, hasta, desdeAnterior, hastaAnterior)
+  );
+
+  // Grabados
+  handle("grabados:listar", (filtros) => grabados.listarOrdenesGrabado(filtros));
+  handle("grabados:obtener", (id) => grabados.obtenerOrdenGrabado(id));
+  handle("grabados:crear", (input) => grabados.crearOrdenGrabado(input));
+  handle("grabados:cambiarEstado", (id, estado) => grabados.cambiarEstadoOrdenGrabado(id, estado));
+  handle("grabados:listasParaEntrega", () => grabados.ordenesListasParaEntrega());
+  handle("grabados:historialCliente", (id) => grabados.historialGrabadosCliente(id));
 
   // Sistema
   handle("sistema:backup", () => backupDatabase());
+  handle("sistema:abrirWhatsApp", (telefono: string, mensaje: string) => {
+    const numero = telefono.replace(/[^0-9]/g, "");
+    const url = `https://wa.me/51${numero}?text=${encodeURIComponent(mensaje)}`;
+    return shell.openExternal(url);
+  });
 }

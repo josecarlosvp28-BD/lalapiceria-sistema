@@ -161,3 +161,71 @@ export function reporteVentasPorPeriodo(desde: string, hasta: string, agrupacion
     )
     .all(desde, hasta);
 }
+
+export function reporteVentasPorMarca(desde: string, hasta: string) {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT p.marca, SUM(vd.cantidad) as unidades, SUM(vd.subtotal_centavos) as ingresos_centavos
+       FROM ventas_detalle vd
+       JOIN ventas v ON v.id = vd.venta_id
+       JOIN productos p ON p.id = vd.producto_id
+       WHERE v.estado = 'completada' AND v.fecha BETWEEN ? AND ?
+       GROUP BY p.marca
+       ORDER BY ingresos_centavos DESC`
+    )
+    .all(desde, hasta);
+}
+
+export function reporteVentasPorCategoria(desde: string, hasta: string) {
+  const db = getDb();
+  return db
+    .prepare(
+      `SELECT p.categoria, SUM(vd.cantidad) as unidades, SUM(vd.subtotal_centavos) as ingresos_centavos
+       FROM ventas_detalle vd
+       JOIN ventas v ON v.id = vd.venta_id
+       JOIN productos p ON p.id = vd.producto_id
+       WHERE v.estado = 'completada' AND v.fecha BETWEEN ? AND ?
+       GROUP BY p.categoria
+       ORDER BY ingresos_centavos DESC`
+    )
+    .all(desde, hasta);
+}
+
+export function reporteMargenPorPeriodo(desde: string, hasta: string, agrupacion: "day" | "month" | "year") {
+  const db = getDb();
+  const formato = agrupacion === "day" ? "%Y-%m-%d" : agrupacion === "month" ? "%Y-%m" : "%Y";
+  return db
+    .prepare(
+      `SELECT strftime('${formato}', v.fecha) as periodo,
+              SUM(vd.subtotal_centavos) as ingresos_centavos,
+              SUM(p.costo_centavos * vd.cantidad) as costo_centavos,
+              SUM(vd.subtotal_centavos) - SUM(p.costo_centavos * vd.cantidad) as margen_centavos
+       FROM ventas_detalle vd
+       JOIN ventas v ON v.id = vd.venta_id
+       JOIN productos p ON p.id = vd.producto_id
+       WHERE v.estado = 'completada' AND v.fecha BETWEEN ? AND ?
+       GROUP BY periodo
+       ORDER BY periodo`
+    )
+    .all(desde, hasta);
+}
+
+export function resumenComparativo(desde: string, hasta: string, desdeAnterior: string, hastaAnterior: string) {
+  const db = getDb();
+  const actual = db
+    .prepare(
+      `SELECT COUNT(*) as num_ventas, COALESCE(SUM(total_centavos), 0) as total_centavos,
+              COALESCE(AVG(total_centavos), 0) as ticket_promedio_centavos
+       FROM ventas WHERE estado = 'completada' AND fecha BETWEEN ? AND ?`
+    )
+    .get(desde, hasta);
+  const anterior = db
+    .prepare(
+      `SELECT COUNT(*) as num_ventas, COALESCE(SUM(total_centavos), 0) as total_centavos,
+              COALESCE(AVG(total_centavos), 0) as ticket_promedio_centavos
+       FROM ventas WHERE estado = 'completada' AND fecha BETWEEN ? AND ?`
+    )
+    .get(desdeAnterior, hastaAnterior);
+  return { actual, anterior };
+}

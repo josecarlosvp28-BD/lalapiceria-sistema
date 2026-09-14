@@ -29,9 +29,26 @@ const api = {
       ipcRenderer.invoke("ventas:reporteMasVendidos", desde, hasta),
     reportePorPeriodo: (desde: string, hasta: string, agrupacion: "day" | "month" | "year") =>
       ipcRenderer.invoke("ventas:reportePorPeriodo", desde, hasta, agrupacion),
+    reportePorMarca: (desde: string, hasta: string) => ipcRenderer.invoke("ventas:reportePorMarca", desde, hasta),
+    reportePorCategoria: (desde: string, hasta: string) =>
+      ipcRenderer.invoke("ventas:reportePorCategoria", desde, hasta),
+    reporteMargen: (desde: string, hasta: string, agrupacion: "day" | "month" | "year") =>
+      ipcRenderer.invoke("ventas:reporteMargen", desde, hasta, agrupacion),
+    resumenComparativo: (desde: string, hasta: string, desdeAnterior: string, hastaAnterior: string) =>
+      ipcRenderer.invoke("ventas:resumenComparativo", desde, hasta, desdeAnterior, hastaAnterior),
+  },
+  grabados: {
+    listar: (filtros?: any) => ipcRenderer.invoke("grabados:listar", filtros),
+    obtener: (id: number) => ipcRenderer.invoke("grabados:obtener", id),
+    crear: (input: any) => ipcRenderer.invoke("grabados:crear", input),
+    cambiarEstado: (id: number, estado: string) => ipcRenderer.invoke("grabados:cambiarEstado", id, estado),
+    listasParaEntrega: () => ipcRenderer.invoke("grabados:listasParaEntrega"),
+    historialCliente: (id: number) => ipcRenderer.invoke("grabados:historialCliente", id),
   },
   sistema: {
     backup: () => ipcRenderer.invoke("sistema:backup"),
+    abrirWhatsApp: (telefono: string, mensaje: string) =>
+      ipcRenderer.invoke("sistema:abrirWhatsApp", telefono, mensaje),
   },
 };
 
