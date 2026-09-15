@@ -11,9 +11,11 @@ export default defineConfig({
     },
   },
   server: {
+    // En desarrollo, corre el backend PHP aparte (`php -S localhost:8000 -t php/public`)
+    // y este proxy reenvía las llamadas /api hacia él.
     proxy: {
       "/api": {
-        target: `http://localhost:${process.env.PORT ?? 4000}`,
+        target: `http://localhost:${process.env.PHP_PORT ?? 8000}`,
         changeOrigin: true,
       },
     },

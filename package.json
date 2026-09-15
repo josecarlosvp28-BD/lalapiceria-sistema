@@ -1,53 +1,31 @@
 {
   "name": "lalapiceria-sistema",
   "version": "0.1.0",
-  "description": "Sistema de gestión interno para La Lapicería (inventario, ventas, grabados, clientes, caja)",
+  "description": "Sistema de gestión interno para La Lapicería (inventario, ventas, grabados, clientes, caja) — frontend React. El backend vive en php/.",
   "author": "La Lapicería",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev:client": "vite",
-    "dev:server": "tsx watch src/server/index.ts",
-    "dev": "concurrently -n client,server -c blue,green \"npm:dev:client\" \"npm:dev:server\"",
+    "dev": "vite",
     "build": "vite build",
-    "start": "tsx src/server/index.ts",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^13.0.3",
-    "express": "^4.21.1",
-    "express-session": "^1.18.1",
-    "pdfkit": "^0.15.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2",
-    "zod": "^3.23.8"
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/better-sqlite3": "^7.6.11",
-    "@types/express": "^4.17.21",
-    "@types/express-session": "^1.18.0",
-    "@types/pdfkit": "^0.13.4",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
-    "concurrently": "^9.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
-    "tsx": "^4.19.1",
     "typescript": "^5.6.2",
-    "vite": "^5.4.8",
-    "vitest": "^2.1.2"
+    "vite": "^5.4.8"
   },
   "allowScripts": {
-    "better-sqlite3@13.0.3": true,
-    "esbuild@0.21.5": true,
-    "esbuild@0.28.2": true,
-    "fsevents@2.3.3": true
+    "esbuild@0.21.5": true
   }
 }

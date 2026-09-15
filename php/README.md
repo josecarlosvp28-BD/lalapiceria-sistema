@@ -36,7 +36,27 @@ composer install
 cp .env.example .env   # y completa los datos de tu MySQL local
 mysql -u root -p < schema.sql   # (crea antes la base de datos vacía)
 php bin/seed-admin.php          # crea el usuario administrador — guarda la contraseña que imprime
-php -S localhost:8080 public/index.php
+```
+
+Para probar solo la API (con curl, Postman, etc.), basta con:
+```bash
+php -S localhost:8000 public/index.php
+```
+
+Para ver la aplicación completa (frontend + API) en el navegador, compila el
+frontend una vez y sirve todo junto con el enrutador de desarrollo
+(`router-dev.php` replica las reglas de `.htaccess`, que el servidor
+integrado de PHP no lee por sí solo):
+```bash
+cd ..            # raíz del proyecto
+npm run build
+cp -R dist/* php/public/
+cd php
+php -S localhost:8000 public/router-dev.php
+```
+Y en otra terminal, si quieres además hot-reload de React mientras editas:
+```bash
+npm run dev   # sirve en :5173 y reenvía /api a :8000 (ver vite.config.ts)
 ```
 
 Corre las pruebas con:
@@ -44,6 +64,10 @@ Corre las pruebas con:
 ```bash
 composer test
 ```
+
+Las pruebas usan la misma base de datos configurada en `.env` — apunta
+`DB_NAME` a una base de pruebas (p. ej. `lalapiceria_test`), nunca a la de
+producción, ya que cada prueba vacía todas las tablas antes de correr.
 
 ## Desplegar en Hostinger (con acceso SSH)
 

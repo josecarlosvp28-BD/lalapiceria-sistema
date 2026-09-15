@@ -1,13 +1,11 @@
 node_modules/
 dist/
-dist-electron/
-release/
-data/
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-backups/
 .DS_Store
 .env
 *.tsbuildinfo
+
+# Build del frontend copiado a php/public/ al desplegar — no se versiona,
+# se regenera con `npm run build` (ver php/README.md)
+php/public/assets/
+php/public/index.html
+data/
