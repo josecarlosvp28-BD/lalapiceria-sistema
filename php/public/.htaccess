@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Si el archivo o carpeta pedido existe de verdad, sírvelo tal cual (JS, CSS, imágenes del frontend)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Todo lo que empiece con /api/ va al front controller de PHP
+RewriteRule ^api/ index.php [L]
+
+# Todo lo demás (rutas de la SPA de React) sirve el index.html del frontend
+RewriteRule ^ index.html [L]

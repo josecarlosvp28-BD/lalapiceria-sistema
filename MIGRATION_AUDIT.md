@@ -206,3 +206,39 @@ no hay ninguna credencial externa en el sistema actual).
 Todo lo demás (las 15 tablas, sus relaciones, la lógica de negocio de cada
 módulo, y el frontend React completo) se traslada sin cambios de
 comportamiento — solo cambia el lenguaje en el que está escrito el backend.
+
+## 10. Decisiones tomadas durante la migración (Fase 1)
+
+Registro de cada punto donde se tomó una decisión de diseño, para que quede
+constancia de qué cambió respecto al comportamiento original y por qué:
+
+- **Patrón de API: RPC → REST.** Como se señaló en la sección 1, el backend
+  PHP expone rutas REST por recurso (`GET/POST /api/productos`,
+  `GET/PUT /api/productos/{id}`, etc.) en vez del único endpoint
+  `POST /api/rpc` que usaba la versión Node. El frontend React se actualizará
+  módulo por módulo para llamar a estas rutas en vez de al RPC genérico —
+  cambio mecánico, sin alterar el comportamiento visible para el usuario.
+
+- **Creación del usuario administrador: de automática a manual por CLI.**
+  La versión Node creaba un admin con contraseña fija (`lapiceria2026`,
+  publicada en el propio código) la primera vez que arrancaba el proceso.
+  En PHP esto se hizo un script de línea de comandos (`php bin/seed-admin.php`)
+  que se ejecuta una sola vez, manualmente, por SSH tras desplegar, y genera
+  una **contraseña aleatoria** que se imprime una sola vez en la terminal.
+  Se decidió así porque auto-sembrar en cada arranque de proceso no tiene
+  sentido en PHP (no hay un "proceso que arranca una vez", cada petición HTTP
+  es independiente) y porque una contraseña aleatoria de un solo uso es más
+  segura que una fija publicada en el código fuente.
+
+- **Respaldo automático: de proceso en memoria a Cron Job de Hostinger.**
+  Documentado en la sección 4 y en `php/cron/backup.php`. Usa `mysqldump`
+  en vez de la API de respaldo de SQLite (`better-sqlite3`'s `.backup()`),
+  ya que MySQL no tiene un equivalente directo — `mysqldump` es el método
+  estándar y produce un `.sql` restaurable con `mysql < archivo.sql`.
+
+- **Generación de PDF: `pdfkit` (Node) → Dompdf (PHP).** Pendiente de
+  implementar en el módulo de Cotizaciones (Fase 2) — dompdf ya está
+  agregado como dependencia de Composer.
+
+Ningún campo de la base de datos fue renombrado ni eliminado; el esquema
+MySQL (`php/schema.sql`) es fiel al esquema SQLite original campo por campo.
