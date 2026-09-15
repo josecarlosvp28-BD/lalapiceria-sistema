@@ -8,6 +8,8 @@ import Cotizaciones from "./pages/Cotizaciones";
 import Garantias from "./pages/Garantias";
 import Caja from "./pages/Caja";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import { useAuth } from "./auth";
 
 const nav = [
   { to: "/dashboard", label: "Panel general" },
@@ -22,6 +24,16 @@ const nav = [
 ];
 
 export default function App() {
+  const { usuario, cargando, logout } = useAuth();
+
+  if (cargando) {
+    return <div className="h-screen flex items-center justify-center text-gray-400">Cargando...</div>;
+  }
+
+  if (!usuario) {
+    return <Login />;
+  }
+
   return (
     <div className="flex h-screen">
       <aside className="w-56 bg-brand-800 text-white flex flex-col shrink-0">
@@ -44,6 +56,12 @@ export default function App() {
             </NavLink>
           ))}
         </nav>
+        <div className="px-4 py-3 border-t border-white/10 text-sm">
+          <div className="text-brand-100">{usuario.nombre}</div>
+          <button onClick={logout} className="text-brand-300 text-xs hover:underline mt-1">
+            Cerrar sesión
+          </button>
+        </div>
       </aside>
       <main className="flex-1 overflow-y-auto">
         <Routes>

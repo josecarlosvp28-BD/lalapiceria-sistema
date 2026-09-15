@@ -1,20 +1,23 @@
 import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
-import { app } from "electron";
+import bcrypt from "bcryptjs";
 import { SCHEMA_SQL } from "./schema";
 
 let db: Database.Database | null = null;
 
-function getDbPath(): string {
-  const userData = app.getPath("userData");
-  if (!fs.existsSync(userData)) fs.mkdirSync(userData, { recursive: true });
-  return path.join(userData, "lalapiceria.db");
+export const ADMIN_SEED_EMAIL = "admin@lalapiceria.com";
+export const ADMIN_SEED_PASSWORD = "lapiceria2026";
+
+function getDataDir(): string {
+  const dir = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  return dir;
 }
 
 export function getDb(): Database.Database {
   if (db) return db;
-  const dbPath = getDbPath();
+  const dbPath = path.join(getDataDir(), "lalapiceria.db");
   db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
@@ -26,18 +29,16 @@ export function getDb(): Database.Database {
 function seedDefaultAdmin(database: Database.Database) {
   const row = database.prepare("SELECT COUNT(*) as count FROM usuarios").get() as { count: number };
   if (row.count === 0) {
+    const hash = bcrypt.hashSync(ADMIN_SEED_PASSWORD, 10);
     database
-      .prepare(
-        "INSERT INTO usuarios (nombre, email, rol, pin_hash, activo) VALUES (?, ?, 'admin', ?, 1)"
-      )
-      .run("Administrador", null, "0000");
+      .prepare("INSERT INTO usuarios (nombre, email, rol, pin_hash, activo) VALUES (?, ?, 'admin', ?, 1)")
+      .run("Administrador", ADMIN_SEED_EMAIL, hash);
   }
 }
 
 export function backupDatabase(): string {
   const database = getDb();
-  const userData = app.getPath("userData");
-  const backupsDir = path.join(userData, "backups");
+  const backupsDir = path.join(getDataDir(), "backups");
   if (!fs.existsSync(backupsDir)) fs.mkdirSync(backupsDir, { recursive: true });
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");

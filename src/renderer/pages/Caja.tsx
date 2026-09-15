@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import { formatoSoles } from "../lib/format";
 
 export default function Caja() {
@@ -12,9 +13,9 @@ export default function Caja() {
 
   async function cargar() {
     const [r1, r2, r3] = await Promise.all([
-      window.api.caja.actual(),
-      window.api.caja.montoEsperado(),
-      window.api.caja.historial(),
+      api.caja.actual(),
+      api.caja.montoEsperado(),
+      api.caja.historial(),
     ]);
     if (r1.ok) setCajaActual(r1.data);
     if (r2.ok) setMontoEsperado(r2.data);
@@ -32,7 +33,7 @@ export default function Caja() {
       setError("Ingresa un monto de apertura válido");
       return;
     }
-    const res = await window.api.caja.abrir(monto, null);
+    const res = await api.caja.abrir(monto, null);
     if (!res.ok) {
       setError(res.error);
       return;
@@ -48,7 +49,7 @@ export default function Caja() {
       setError("Ingresa el monto contado en caja");
       return;
     }
-    const res = await window.api.caja.cerrar(monto, null, notasCierre || null);
+    const res = await api.caja.cerrar(monto, null, notasCierre || null);
     if (!res.ok) {
       setError(res.error);
       return;

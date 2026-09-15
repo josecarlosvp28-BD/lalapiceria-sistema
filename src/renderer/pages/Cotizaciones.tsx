@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import type { Cliente, Producto } from "../../shared/types";
 import { formatoSoles } from "../lib/format";
 
@@ -37,13 +38,13 @@ export default function Cotizaciones() {
   const [error, setError] = useState<string | null>(null);
 
   async function cargar() {
-    const res = await window.api.cotizaciones.listar();
+    const res = await api.cotizaciones.listar();
     if (res.ok) setLista(res.data);
   }
 
   useEffect(() => {
     cargar();
-    window.api.clientes.listar().then((r) => r.ok && setClientes(r.data));
+    api.clientes.listar().then((r) => r.ok && setClientes(r.data));
   }, []);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function Cotizaciones() {
       setResultados([]);
       return;
     }
-    window.api.productos.listar({ busqueda: busquedaProducto }).then((r) => r.ok && setResultados(r.data));
+    api.productos.listar({ busqueda: busquedaProducto }).then((r) => r.ok && setResultados(r.data));
   }, [busquedaProducto]);
 
   function agregarItem(p: Producto) {
@@ -76,7 +77,7 @@ export default function Cotizaciones() {
       setError("Selecciona un cliente y agrega al menos un producto");
       return;
     }
-    const res = await window.api.cotizaciones.crear({
+    const res = await api.cotizaciones.crear({
       cliente_id: clienteId,
       descripcion: descripcion || null,
       fecha_entrega_estimada: fechaEntrega || null,
@@ -102,14 +103,12 @@ export default function Cotizaciones() {
   async function avanzar(cot: any) {
     const siguiente = SIGUIENTE[cot.estado as EstadoCotizacion];
     if (!siguiente) return;
-    const res = await window.api.cotizaciones.cambiarEstado(cot.id, siguiente);
+    const res = await api.cotizaciones.cambiarEstado(cot.id, siguiente);
     if (res.ok) cargar();
   }
 
-  async function generarPDF(cot: any) {
-    setError(null);
-    const res = await window.api.cotizaciones.generarPDF(cot.id);
-    if (!res.ok) setError(res.error);
+  function generarPDF(cot: any) {
+    window.open(`/api/cotizaciones/${cot.id}/pdf`, "_blank");
   }
 
   return (

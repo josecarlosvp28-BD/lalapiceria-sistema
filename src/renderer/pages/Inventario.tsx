@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../lib/api";
 import type { Producto, NuevoProducto } from "../../shared/types";
 import { formatoSoles } from "../lib/format";
 
@@ -29,7 +30,7 @@ export default function Inventario() {
   const [ajuste, setAjuste] = useState<{ producto: Producto; cantidad: string; motivo: string } | null>(null);
 
   async function cargar() {
-    const res = await window.api.productos.listar({ busqueda });
+    const res = await api.productos.listar({ busqueda });
     if (res.ok) setProductos(res.data);
   }
 
@@ -48,7 +49,7 @@ export default function Inventario() {
       setError("SKU, marca y modelo son obligatorios");
       return;
     }
-    const res = await window.api.productos.crear(form);
+    const res = await api.productos.crear(form);
     if (!res.ok) {
       setError(res.error);
       return;
@@ -65,7 +66,7 @@ async function confirmarAjuste() {
       setError("Ingresa una cantidad válida (usa negativo para restar)");
       return;
     }
-    const res = await window.api.inventario.registrarMovimiento({
+    const res = await api.inventario.registrarMovimiento({
       producto_id: ajuste.producto.id,
       tipo: cantidad > 0 ? "entrada" : "ajuste",
       cantidad: Math.abs(cantidad),

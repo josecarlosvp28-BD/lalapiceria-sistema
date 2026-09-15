@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import type { Cliente, NuevoCliente } from "../../shared/types";
 import { formatoSoles } from "../lib/format";
 
@@ -26,7 +27,7 @@ export default function Clientes() {
   const [seguimiento, setSeguimiento] = useState<any[]>([]);
 
   async function cargar() {
-    const res = await window.api.clientes.listar(busqueda);
+    const res = await api.clientes.listar(busqueda);
     if (res.ok) setClientes(res.data);
   }
 
@@ -35,13 +36,13 @@ export default function Clientes() {
   }, [busqueda]);
 
   useEffect(() => {
-    window.api.clientes.proximosCumpleanos(30).then((r) => r.ok && setCumpleanos(r.data));
-    window.api.clientes.paraSeguimiento(90).then((r) => r.ok && setSeguimiento(r.data));
+    api.clientes.proximosCumpleanos(30).then((r) => r.ok && setCumpleanos(r.data));
+    api.clientes.paraSeguimiento(90).then((r) => r.ok && setSeguimiento(r.data));
   }, []);
 
   async function guardar() {
     if (!form.nombre.trim()) return;
-    const res = await window.api.clientes.crear(form);
+    const res = await api.clientes.crear(form);
     if (res.ok) {
       setShowForm(false);
       setForm(CLIENTE_VACIO);
@@ -51,7 +52,7 @@ export default function Clientes() {
 
   async function verHistorial(c: Cliente) {
     setSeleccionado(c);
-    const res = await window.api.clientes.historialCompras(c.id);
+    const res = await api.clientes.historialCompras(c.id);
     if (res.ok) setHistorial(res.data);
   }
 

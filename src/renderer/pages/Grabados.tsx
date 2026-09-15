@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import type { Cliente, Producto, EstadoGrabado } from "../../shared/types";
 import { formatoSoles } from "../lib/format";
 
@@ -32,13 +33,13 @@ export default function Grabados() {
   const [error, setError] = useState<string | null>(null);
 
   async function cargar() {
-    const res = await window.api.grabados.listar();
+    const res = await api.grabados.listar();
     if (res.ok) setOrdenes(res.data);
   }
 
   useEffect(() => {
     cargar();
-    window.api.clientes.listar().then((r) => r.ok && setClientes(r.data));
+    api.clientes.listar().then((r) => r.ok && setClientes(r.data));
   }, []);
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function Grabados() {
       setResultadosProducto([]);
       return;
     }
-    window.api.productos.listar({ busqueda: busquedaProducto }).then((r) => r.ok && setResultadosProducto(r.data));
+    api.productos.listar({ busqueda: busquedaProducto }).then((r) => r.ok && setResultadosProducto(r.data));
   }, [busquedaProducto]);
 
   async function crear() {
@@ -55,7 +56,7 @@ export default function Grabados() {
       setError("Cliente, producto y texto a grabar son obligatorios");
       return;
     }
-    const res = await window.api.grabados.crear({
+    const res = await api.grabados.crear({
       cliente_id: form.cliente_id,
       producto_id: productoSeleccionado.id,
       venta_id: null,
@@ -79,7 +80,7 @@ export default function Grabados() {
   }
 
   async function avanzarEstado(orden: any, nuevoEstado: EstadoGrabado) {
-    const res = await window.api.grabados.cambiarEstado(orden.id, nuevoEstado);
+    const res = await api.grabados.cambiarEstado(orden.id, nuevoEstado);
     if (!res.ok) {
       setError(res.error);
       return;
@@ -87,9 +88,10 @@ export default function Grabados() {
     cargar();
   }
 
-  async function notificarWhatsApp(orden: any) {
+  function notificarWhatsApp(orden: any) {
     const mensaje = `Hola ${orden.cliente_nombre}, tu pedido de grabado personalizado (${orden.marca} ${orden.modelo}) ya está listo para recoger en La Lapicería. ¡Te esperamos!`;
-    await window.api.sistema.abrirWhatsApp(orden.cliente_telefono ?? "", mensaje);
+    const numero = (orden.cliente_telefono ?? "").replace(/[^0-9]/g, "");
+    window.open(`https://wa.me/51${numero}?text=${encodeURIComponent(mensaje)}`, "_blank");
   }
 
   const NEXT: Record<EstadoGrabado, EstadoGrabado | null> = {

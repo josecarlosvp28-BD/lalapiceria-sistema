@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import { formatoSoles } from "../lib/format";
 
 function hoy(): string {
@@ -23,10 +24,10 @@ export default function Reportes() {
 
   async function cargar() {
     const [r1, r2, r3, r4] = await Promise.all([
-      window.api.ventas.reporteMasVendidos(desde, hasta),
-      window.api.ventas.reportePorPeriodo(desde, hasta, agrupacion),
-      window.api.ventas.reportePorMarca(desde, hasta),
-      window.api.ventas.reportePorCategoria(desde, hasta),
+      api.ventas.reporteMasVendidos(desde, hasta),
+      api.ventas.reportePorPeriodo(desde, hasta, agrupacion),
+      api.ventas.reportePorMarca(desde, hasta),
+      api.ventas.reportePorCategoria(desde, hasta),
     ]);
     if (r1.ok) setMasVendidos(r1.data);
     if (r2.ok) setPorPeriodo(r2.data);
@@ -42,7 +43,7 @@ export default function Reportes() {
     const desdeAnterior = new Date(hastaAnterior);
     desdeAnterior.setDate(desdeAnterior.getDate() - dias);
 
-    const r5 = await window.api.ventas.resumenComparativo(
+    const r5 = await api.ventas.resumenComparativo(
       desde,
       hasta,
       desdeAnterior.toISOString().slice(0, 10),

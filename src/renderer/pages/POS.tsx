@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../lib/api";
 import type { Cliente, Producto, VentaItem, VentaPago, MetodoPago } from "../../shared/types";
 import { formatoSoles } from "../lib/format";
 
@@ -26,7 +27,7 @@ export default function POS() {
   const [mensaje, setMensaje] = useState<string | null>(null);
 
   useEffect(() => {
-    window.api.clientes.listar().then((r) => r.ok && setClientes(r.data));
+    api.clientes.listar().then((r) => r.ok && setClientes(r.data));
   }, []);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function POS() {
       setResultados([]);
       return;
     }
-    window.api.productos.listar({ busqueda }).then((r) => r.ok && setResultados(r.data));
+    api.productos.listar({ busqueda }).then((r) => r.ok && setResultados(r.data));
   }, [busqueda]);
 
   function agregarProducto(p: Producto) {
@@ -94,7 +95,7 @@ export default function POS() {
       descuento_centavos: 0,
     }));
 
-    const res = await window.api.ventas.crear({
+    const res = await api.ventas.crear({
       cliente_id: clienteId === "" ? null : clienteId,
       usuario_id: null,
       items,

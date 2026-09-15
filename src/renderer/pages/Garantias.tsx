@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import type { Cliente } from "../../shared/types";
 
 type EstadoGarantia = "en_revision" | "en_reparacion" | "listo" | "entregado" | "no_procede";
@@ -26,13 +27,13 @@ export default function Garantias() {
   const [error, setError] = useState<string | null>(null);
 
   async function cargar() {
-    const res = await window.api.garantias.listar();
+    const res = await api.garantias.listar();
     if (res.ok) setLista(res.data);
   }
 
   useEffect(() => {
     cargar();
-    window.api.clientes.listar().then((r) => r.ok && setClientes(r.data));
+    api.clientes.listar().then((r) => r.ok && setClientes(r.data));
   }, []);
 
   async function crear() {
@@ -41,7 +42,7 @@ export default function Garantias() {
       setError("Cliente y descripción de la falla son obligatorios");
       return;
     }
-    const res = await window.api.garantias.crear({
+    const res = await api.garantias.crear({
       cliente_id: form.cliente_id,
       producto_id: null,
       venta_id: null,
@@ -59,7 +60,7 @@ export default function Garantias() {
   }
 
   async function cambiarEstado(id: number, estado: EstadoGarantia) {
-    const res = await window.api.garantias.cambiarEstado(id, estado);
+    const res = await api.garantias.cambiarEstado(id, estado);
     if (res.ok) cargar();
   }
 

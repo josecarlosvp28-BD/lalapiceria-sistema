@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import { formatoSoles } from "../lib/format";
 
 function hoy(): string {
@@ -22,11 +23,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      window.api.dashboard.resumenGeneral(desde, hasta),
-      window.api.dashboard.rotacionInventario(desde, hasta),
-      window.api.dashboard.clientesNuevosVsRecurrentes(desde, hasta),
-      window.api.dashboard.ingresosPorCanal(desde, hasta),
-      window.api.productos.stockBajo(),
+      api.dashboard.resumenGeneral(desde, hasta),
+      api.dashboard.rotacionInventario(desde, hasta),
+      api.dashboard.clientesNuevosVsRecurrentes(desde, hasta),
+      api.dashboard.ingresosPorCanal(desde, hasta),
+      api.productos.stockBajo(),
     ]).then(([r1, r2, r3, r4, r5]) => {
       if (r1.ok) setResumen(r1.data);
       if (r2.ok) setRotacion(r2.data);
