@@ -242,3 +242,37 @@ constancia de qué cambió respecto al comportamiento original y por qué:
 
 Ningún campo de la base de datos fue renombrado ni eliminado; el esquema
 MySQL (`php/schema.sql`) es fiel al esquema SQLite original campo por campo.
+
+## 11. Decisiones tomadas durante la migración (Fase 2)
+
+- **PDO devuelve `SUM()`/`AVG()` como strings, no números.** A diferencia del
+  driver de SQLite en Node, PDO con MySQL (mysqlnd) devuelve los resultados
+  de funciones agregadas como strings numéricas (para no perder precisión
+  con columnas DECIMAL anchas). Se detectó probando el endpoint del
+  dashboard contra una base real (no era visible solo leyendo el código) y
+  se corrigió casteando explícitamente a `int`/`float` en el repositorio
+  antes de devolver la respuesta — ver `VentaRepository::castearNumericos()`
+  y los métodos de `DashboardRepository`.
+- **Bug real encontrado y corregido por las pruebas**: `GrabadoRepository::crear()`
+  accedía a `$input['fecha_entrega_estimada']` con el operador `?:` sin
+  comprobar antes si la clave existía, lo que generaba un warning de PHP
+  ("Undefined array key") cuando el frontend no envía ese campo. Se
+  corrigió con `?? null`. El mismo patrón se corrigió preventivamente en
+  `ClienteRepository` para `fecha_nacimiento`.
+- **Error de sintaxis real encontrado por las pruebas de extremo a extremo**:
+  la primera versión de `PdfService::construirHtml()` interpolaba
+  expresiones con el operador ternario (`?:`) dentro de un heredoc
+  (`{$this->e(...) ?: '—'}`), lo cual no es válido en PHP — la
+  interpolación de heredoc solo admite acceso simple a propiedades/métodos,
+  no operadores adicionales dentro de las llaves. Se corrigió calculando
+  esos valores en variables antes del heredoc. Esto no se detectó
+  revisando el código; solo apareció al probar el endpoint real
+  `GET /api/cotizaciones/{id}/pdf` contra el servidor PHP corriendo.
+
+Los módulos completos migrados en esta fase — Inventario, Clientes, Ventas
+(incluye pagos mixtos y anulación con reversión de stock), Grabados,
+Cotizaciones (incluye PDF con Dompdf), Garantías, Caja diaria, y Dashboard —
+replican exactamente las mismas reglas de negocio que la versión Node
+(validaciones, transacciones, cálculos), verificadas con 26 pruebas
+PHPUnit y pruebas manuales de extremo a extremo contra una base MySQL real
+para cada endpoint nuevo.
